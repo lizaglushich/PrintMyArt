@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= myMessage %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .mockup-carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+    #carousel button {
+    padding: 8px 16px;
+    margin: 0 5px;
+    font-size: 18px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    cursor: pointer;
+    }
+
+    #carousel button:hover {
+      background-color: #eee;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #d681bd53;
+      padding: 30px;
+    }
+
+    .product-container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0, 0, 1, 0.3);
+    }
+
+    .product-container img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .product-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .product-artist {
+      font-size: 18px;
+      color: #777;
+      margin-bottom: 20px;
+    }
+
+   .product-description {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: justify;
+  text-indent: 2em;
+  font-size: 16px;         /* reduced from 20px */
+  line-height: 1.5;
+  color: #3c3b3b;
+}
+
+
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .product-price {
+      font-size: 35px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .add-to-cart {
+      padding: 10px 20px;
+      background: hsl(294, 37%, 33%);
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .add-to-cart:hover {
+      background: #693d5f;
+    }
+  </style>
+ 
+</head>
+<body>
+  <div style="display: flex; gap: 30px;">
+
+<div style="
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 0 24px rgba(0,0,0,0.1);
+  padding: 32px;
+  display: flex;
+  gap: 24px;
+  max-width: 1300px;
+  margin: 40px auto;
+  height: 90vh;
+  overflow: hidden;
+">
+
+
+  <!-- this is my left column -->
+  <div style="flex: 1; overflow-y: auto;"> <!-- LEFT -->
+  <h1 class="product-title"><%= myMessage %></h1>
+    <div class="product-artist">By <%= Artist %></div>
+    <img src="/img/<%= image %>" alt="<%= myMessage %>" style="
+  width: 100%;
+  height: 300px;
+  object-fit: contain;
+  border-radius: 12px;
+">
+
+
+    <p class="product-description">
+      <%= Description || "No description available for this artwork." %>
+    </p>
+  </div>
+
+  <% if (typeof product !== 'undefined') { %>
+    
+  <!-- Right Column with Pink Container & Carousel-->
+<div class="framed-preview-wrapper" style="flex: 1; overflow-y: auto;">
+
+  <h3 style="margin-bottom: 16px; text-align: center;">See It Framed</h3>
+
+  <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+  <img id="mockup-image"
+     src="/img/mocks_by_picture/<%= product.MockupFolder %>/mock1.jpg"
+     style="
+  width: 100%;
+  height: 500px;
+  object-fit: contain;
+  border-radius: 12px;
+">
+  </div>
+
+
+  <div style="margin-top: 20px; display: flex; gap: 14px;">
+    <button style="padding: 12px 20px; font-size: 18px; border-radius: 6px;" onclick="previousMockup()">←</button>
+    <button style="padding: 12px 20px; font-size: 18px; border-radius: 6px;" onclick="nextMockup()">→</button>
+  </div>
+  <div class="product-footer">
+      <!-- Purchase Controls Group -->
+<div style="display: flex; align-items: center; gap: 16px; margin-top: 24px; flex-wrap: wrap;">
+  <div class="product-price" style="font-size: 1.5rem; font-weight: bold;">€<%= PriceToPrint %></div>
+
+  <select id="quantity" name="quantity" style="padding: 4px 6px; font-size: 1rem;">
+    <option value="1" selected>1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+
+  <button class="add-to-cart" style="padding: 8px 16px;">Add to Cart</button>
+
+  <a href="/checkout" class="add-to-cart" style="padding: 8px 16px;">Go to Checkout</a>
+</div>
+
+    </div>
+  </div>
+</div>
+
+<% } %>
+
+
+
+
+<script>
+  document.querySelector('.add-to-cart').addEventListener('click', () => {
+    const name = "<%= myMessage %>";                     // Art name as string
+    const price = parseFloat("<%= PriceToPrint %>");     // Price as number
+    const qty = document.getElementById("quantity")?.value || 1;
+
+    const item = {
+      quan: parseInt(qty),
+      p: price
+    };
+
+    localStorage.setItem(name, JSON.stringify(item));
+    alert(`${name} added to cart!`);
+  });
+</script>
+
+
+<!-- new dynamic carousel logic-->
+
+<% if (typeof product !== 'undefined') { %>
+<script>
+  const mockupFolder = "<%= product.MockupFolder %>";
+  const mockupImage = document.getElementById("mockup-image");
+
+  const totalMockups = <%= totalMockups || 0 %>;
+  let currentMockup = 1;
+
+  function updateMockup() {
+    mockupImage.src = `/img/mocks_by_picture/${mockupFolder}/mock${currentMockup}.jpg`;
+  }
+
+  function nextMockup() {
+    currentMockup = (currentMockup % totalMockups) + 1;
+    updateMockup();
+  }
+
+  function previousMockup() {
+    currentMockup = (currentMockup - 2 + totalMockups) % totalMockups + 1;
+    updateMockup();
+  }
+
+  updateMockup(); // initial load
+</script>
+
+<% } %>
+
+
+
+</div>
+</body>
+</html>
+
+
+<!--<script>
+  function addToCart()
+  {
+    //alert (this is from the function);
+    let product = document.getElementById("product-title").innerHTML;
+    let quantity = document.getElementById("quantity").value;
+    let price = document.getElementById("product-price").innerHTML;
+    let quan_price = {p: price, quan: quantity};
+    //localStorage.test = quantity;
+    localStorage.setItem(product, JSON.stringify(quan_price));
+  }
+</script> -->
+

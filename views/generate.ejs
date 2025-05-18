@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate AI Art</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: 50px auto;
+      text-align: center;
+    }
+
+    .form-container input {
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .form-container button  {
+      padding: 20px 30px;
+      background: hsl(294, 37%, 33%);
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #result img {
+      margin-top: 30px;
+      border-radius: 12px;
+      max-width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>PrintYourArt</h1>
+    <div class="nav">
+      <a href="/">Home</a>
+      <a href="/all">Products</a>
+      <a href="/generate"><strong>AI Generator</strong></a>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <h2>Create Your Own Art</h2>
+    <form id="promptForm">
+      <input type="text" name="prompt" placeholder="e.g. A futuristic city at sunset" required>
+      <br>
+      <button type="submit">Generate Your Art</button>
+    </form>
+
+    <div id="result">
+      <img id="aiImage" src="" style="display: none;">
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('promptForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const prompt = e.target.prompt.value;
+
+      const res = await fetch('/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+      if (data.imageUrl) {
+        document.getElementById('aiImage').src = data.imageUrl;
+        document.getElementById('aiImage').style.display = 'block';
+      }
+    };
+  </script>
+</body>
+</html>

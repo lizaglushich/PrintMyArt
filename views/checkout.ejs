@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Checkout - PrintMyArt</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #835f7c;
+        color: #333;
+      }
+
+      .page-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+
+      .checkout-card {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 700px;
+        width: 100%;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .checkout-card h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #5f2f6a;
+      }
+
+      .checkout-card h2 {
+        margin: 12px 0;
+        font-weight: 500;
+      }
+
+      label {
+        font-weight: bold;
+        margin-top: 15px;
+        display: block;
+      }
+
+      input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+      }
+
+      button,
+      a.button-link {
+        background-color: #6c2c84;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      .action-button {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 1rem;
+      border-radius: 8px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background-color: #6c2c84;
+      color: white;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      }
+
+      .action-button:hover {
+        background-color: #4a185c;
+      }
+
+
+      button:hover,
+      a.button-link:hover {
+        background-color: #4a185c;
+      }
+
+      .clear-btn {
+        background-color: #6c2c84;
+        margin-top: 10px;
+      }
+
+      .button-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <div class="checkout-card">
+        <h1>Checkout</h1>
+        <h2 id="cart_items"></h2>
+        <h2 id="final_price">Total: €0.00</h2>
+
+        <form>
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="address">Address:</label>
+          <textarea id="address" name="address" required></textarea>
+
+          <label for="payment">Payment Method:</label>
+          <select id="payment" name="payment">
+            <option value="credit-card">Credit Card</option>
+            <option value="paypal">PayPal</option>
+            <option value="stripe">Stripe</option>
+          </select>
+
+          <div class="button-row">
+          <button type="submit" class="action-button">Place Order</button>
+          <a href="/all" class="action-button">Back to Shop</a>
+          <button type="button" class="action-button" onclick="localStorage.clear(); location.reload();">
+            Clear Cart
+          </button>
+        </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      let cost_allItems = 0;
+      let cartContent = "";
+
+      for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        let item = localStorage.getItem(key);
+
+        try {
+          let content = JSON.parse(item);
+          if (content && content.quan && content.p) {
+            cartContent += `${key} x ${content.quan} = €${(content.quan * content.p).toFixed(2)}<br>`;
+            cost_allItems += content.quan * content.p;
+          }
+        } catch (e) {
+          console.warn(`Skipping invalid item: ${key}`);
+        }
+      }
+
+      document.getElementById("cart_items").innerHTML = cartContent;
+      document.getElementById("final_price").innerHTML = `Total: €${cost_allItems.toFixed(2)}`;
+    </script>
+  </body>
+</html>
+

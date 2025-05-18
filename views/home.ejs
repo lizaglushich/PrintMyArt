@@ -1,0 +1,157 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home | PrintMyArt</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* === HEADER === */
+    .navbar {
+      background-color: #e4b3ef;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #3d1f3c;
+    }
+    .navbar .logo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #2d1233;
+    }
+    .navbar ul {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar ul li a {
+      font-size: 20px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+    }
+    .navbar ul li a:hover {
+      text-decoration: underline;
+    }
+    .navbar .icon {
+      font-size: 24px;
+      cursor: pointer;
+      color: #2d1233;
+    }
+
+    /* === EXISTING STYLES === */
+    .hero {
+      background: linear-gradient(135deg, #fce3ec, #dbcdf0);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #4b175c;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: #333;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      margin: 3rem 0 2rem;
+      color: #4b175c;
+    }
+    .features-grid, .gallery-grid {
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      padding: 0 2rem;
+    }
+    .feature, .gallery-grid img {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .feature:hover, .gallery-grid img:hover {
+      transform: translateY(-5px);
+    }
+    .feature img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .feature h3 {
+      margin: 1rem 1rem 0.5rem;
+      color: #4b175c;
+    }
+    .feature p {
+      margin: 0 1rem 1rem;
+      font-size: 0.95rem;
+      color: #555;
+    }
+    .gallery-grid img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === HEADER === -->
+  <nav class="navbar">
+    <div class="logo">PrintMyArt</div>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/all">Products</a></li>
+      <li><a href="/contacts">Contacts</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+    <div class="icon">👤</div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <h1>Welcome to PrintMyArt</h1>
+      <p>High-quality art prints for your space, delivered with care and framed with love.</p>
+    </section>
+
+    <section class="features">
+      <h2 class="section-title">Why Choose PrintMyArt?</h2>
+      <div class="features-grid">
+        <div class="feature">
+          <img src="/img/mocks%20for%20home%20page/shopping2.jpg" alt="Framing Options">
+          <h3>Framing Options</h3>
+          <p>Choose from multiple frame styles and sizes to suit any wall and taste.</p>
+        </div>
+        <div class="feature">
+          <img src="/img/mocks%20for%20home%20page/il_1588xN.6134756644_1tk3.jpg" alt="Museum Quality">
+          <h3>Museum Quality</h3>
+          <p>Printed using archival inks on acid-free paper for longevity and clarity.</p>
+        </div>
+        <div class="feature">
+          <img src="/img/mocks%20for%20home%20page/il_1588xN.6134756044_tmpi.jpg" alt="Secure Packaging">
+          <h3>Secure Packaging</h3>
+          <p>Shipped in durable packaging to ensure your print arrives in perfect condition.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery">
+      <h2 class="section-title">Explore Our Art in Real Spaces</h2>
+      <div class="gallery-grid">
+        <img src="/img/mocks%20for%20home%20page/4.jpg" alt="Mockup 1">
+        <img src="/img/mocks%20for%20home%20page/71WTSoynTpL.jpg" alt="Mockup 2">
+        <img src="/img/mocks%20for%20home%20page/s-l1600.jpg" alt="Mockup 3">
+      </div>
+    </section>
+  </main>
+</body>
+</html>
