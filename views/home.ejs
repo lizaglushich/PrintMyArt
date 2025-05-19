@@ -106,22 +106,8 @@
 <body>
 
   <!-- === HEADER === -->
-  <div class="header">
-    <h1>PrintMyArt</h1>
-    <div class="nav">
-      <a href="/home"><strong>Home</strong></a>
-      <a href="/all">Products</a>
-      <a href="/generate">Generate</a>
-      <a href="/contact">Contacts</a>
+  <%- include("partials/navbar", { username: username }) %>
 
-      <% if (username) { %>
-      <span>Welcome, <%= username %>!</span>
-      <a href="/logout">Logout</a>
-      <% } else { %>
-      <a href="/login">Login</a>
-      <% } %>
-    </div>
-  </div>
   
 
   <main>

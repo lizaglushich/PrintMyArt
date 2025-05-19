@@ -8,16 +8,9 @@
 </head>
 <body>
 
-  <!-- Shared Header -->
-  <div class="header">
-    <h1>PrintMyArt</h1>
-    <div class="nav">
-      <a href="/home">Home</a>
-      <a href="/all">Products</a>
-      <a href="/generate">Generate</a>
-      <a href="/contact">Contacts</a>
-    </div>
-  </div>
+  <!-- === HEADER === -->
+  <%- include("partials/navbar", { username: username }) %>
+
 
   <!-- Login Form -->
   <div class="login-container">

@@ -3,36 +3,33 @@ const express = require('express');
 const path = require('path');
 const mysql = require('mysql');
 const fs = require('fs');
+const session = require('express-session');
+const axios = require('axios');
 require('dotenv').config();
 
-const { Configuration, OpenAIApi } = require("openai");
+const app = express();
 
-let loggedIn = false;
-
-const app = express(); // define app first
-app.use(express.json()); // now it's valid to use
-
-
-
-// Configure app to use bodyParser middleware for handling form data
+// Middleware
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/css', express.static(__dirname + '/public/css'));
+// Static files
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/img', express.static(path.join(__dirname, 'img')));
+app.use(express.static("home"));
 
-// Import authentication module (no router)
-const auth = require('./auth');
+// View engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// Create two users for testing authentication
-//const usersArr = ["John","Alice","user@123.com"]
-auth.createUser("John", "Secret123");
-auth.createUser("Alice", "pass456");
-auth.createUser("user@123.com", "pass");
+// Session setup
+app.use(session({
+  secret: 'mySecretKey123',
+  resave: false,
+  saveUninitialized: true
+}));
 
-// Test the authentication function
-console.log(auth.authenticateUser("John", "Secret123")); // true
-console.log(auth.authenticateUser("John", "Secret987")); // false
-
-// Connect to database
+// MySQL setup
 const connection = mysql.createConnection({
   host: 'localhost',
   port: 3306,
@@ -42,84 +39,83 @@ const connection = mysql.createConnection({
 
 connection.connect((err) => {
   if (err) {
-    console.error('Error connecting to database: ', err);
+    console.error('Database connection error:', err);
   } else {
-    console.log('Connected to database!');
+    console.log('Connected to MySQL');
   }
 });
 
-const OpenAI = require("openai");
+// Authentication module
+const auth = require('./auth');
+auth.createUser("John", "Secret123");
+auth.createUser("Alice", "pass456");
+auth.createUser("user@123.com", "pass");
 
-const openai = new OpenAI({
-  apiKey: "YOUR_OPENAI_API_KEY" // replace with your real key
-});
+// ==== ROUTES ====
 
-app.use(express.json()); // Required to parse JSON request body
-
-
-// Set view engine and static directories
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static("home"));
-app.use('/img', express.static(path.join(__dirname, 'img')));
-
-// Routes
+// Root → login page
 app.get("/", (req, res) => {
-  res.render("login.ejs");
+  res.render("login.ejs", { message: null, username: null });
 });
 
-
-app.get("/logout", (req, res) => {
-  res.render("home.ejs", { username: null });
-});
-
-
+// Login page
 app.get("/login", (req, res) => {
-  res.render("login.ejs", { message: null });
+  res.render("login.ejs", { message: null, username: null });
 });
 
-
+// Login submit
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   const authenticated = auth.authenticateUser(username, password);
-  console.log("Received:", username, password);
-
+  console.log("Login attempt:", username, password);
 
   if (authenticated) {
-    loggedIn = true;
-    res.render("home", { username });
+    req.session.username = username;
+    res.redirect("/home");
   } else {
-    console.error("failed", { message: "❌ Authentication failed. Try again." })
-    res.render("failed", { message: "❌ Authentication failed. Try again." });
+    res.render("login.ejs", {
+      message: "❌ Authentication failed. Try again.",
+      username: null
+    });
   }
 });
 
-app.get('/home', (req, res) => {
-    res.render("home", { username });
-});
-
-
-app.get("/all", (req, res) => {
-  connection.query("SELECT * FROM productdata", (err, rows) => {
-    if (err) {
-      console.error('Error retrieving all data from database: ', err);
-      return res.status(500).send('Error retrieving all data from database');
-    }
-    res.render("all.ejs", { products: rows });
+// Logout
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
   });
 });
 
-// AI connection block starts here
+// Home
+app.get("/home", (req, res) => {
+  res.render("home.ejs", { username: req.session.username });
+});
 
+// All products
+app.get("/all", (req, res) => {
+  connection.query("SELECT * FROM productdata", (err, rows) => {
+    if (err) {
+      console.error('Error retrieving data:', err);
+      return res.status(500).send('Database error');
+    }
+    res.render("all.ejs", {
+      products: rows,
+      username: req.session.username
+    });
+  });
+});
+
+// Generate art
 app.get("/generate", (req, res) => {
-  if(loggedIn == true){
-    res.render("generate"); 
+  if (req.session.username) {
+    res.render("generate", { username: req.session.username });
   } else {
-      res.render("login"); 
+    res.redirect("/login");
   }
 });
-const axios = require('axios');
 
+// Generate image API
 app.post('/generate-image', async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -135,14 +131,12 @@ app.post('/generate-image', async (req, res) => {
     const imageUrl = response.data.output_url;
     res.json({ imageUrl });
   } catch (error) {
-    console.error("DeepAI Error:", error.response?.data || error.message);
+    console.error("Image generation error:", error.response?.data || error.message);
     res.status(500).json({ error: "Image generation failed" });
   }
 });
 
-// ends here
-
-
+// Product detail
 app.get("/shop", (req, res) => {
   const ID = req.query.id;
   connection.query("SELECT * FROM productdata WHERE id = ?", [ID], (err, rows) => {
@@ -155,7 +149,7 @@ app.get("/shop", (req, res) => {
     let totalMockups = 0;
     try {
       const files = fs.readdirSync(mockupPath);
-      totalMockups = files.filter(file => file.match(/^mock\d+\.jpg$/)).length;
+      totalMockups = files.filter(file => /^mock\d+\.jpg$/.test(file)).length;
     } catch (error) {
       console.error('Error reading mockup folder:', error);
     }
@@ -167,38 +161,34 @@ app.get("/shop", (req, res) => {
       image: product.Image,
       Description: product.Description,
       product: product,
-      totalMockups: totalMockups 
+      totalMockups: totalMockups,
+      username: req.session.username
     });
   });
 });
 
-
-//contact page
-app.get('/contact', (req, res) => {
-  res.render("contact");
+// Contact page
+app.get("/contact", (req, res) => {
+  res.render("contact", { username: req.session.username });
 });
 
-app.post('/send-message', (req, res) => {
+// Contact form submission
+app.post("/send-message", (req, res) => {
   const { name, email, message } = req.body;
-  console.log("Contact form submitted:", { name, email, message });
+  console.log("Message received:", { name, email, message });
   res.send("✅ Message received! We'll be in touch soon.");
 });
 
-
-// checkout
-app.get('/checkout', (req, res) => {
-  if (loggedIn == true){
-    res.render("checkout");
-
-  }
-  else {
-    res.render("login");
-
+// Checkout page
+app.get("/checkout", (req, res) => {
+  if (req.session.username) {
+    res.render("checkout", { username: req.session.username });
+  } else {
+    res.redirect("/login");
   }
 });
 
-
 // Start the server
 app.listen(3000, () => {
-  console.log('Server started on port 3000');
+  console.log("Server running on http://localhost:3000");
 });
