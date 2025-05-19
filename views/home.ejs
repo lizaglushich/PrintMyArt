@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home | PrintMyArt</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
     /* === HEADER === */
     .navbar {
@@ -106,22 +106,32 @@
 <body>
 
   <!-- === HEADER === -->
-  <nav class="navbar">
-    <div class="logo">PrintMyArt</div>
-    <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/all">Products</a></li>
-      <li><a href="/contacts">Contacts</a></li>
-      <li><a href="/about">About</a></li>
-    </ul>
-    <div class="icon">👤</div>
-  </nav>
+  <div class="header">
+    <h1>PrintMyArt</h1>
+    <div class="nav">
+      <a href="/home"><strong>Home</strong></a>
+      <a href="/all">Products</a>
+      <a href="/generate">Generate</a>
+      <a href="/contact">Contacts</a>
+
+      <% if (username) { %>
+      <span>Welcome, <%= username %>!</span>
+      <a href="/logout">Logout</a>
+      <% } else { %>
+      <a href="/login">Login</a>
+      <% } %>
+    </div>
+  </div>
+  
 
   <main>
-    <section class="hero">
-      <h1>Welcome to PrintMyArt</h1>
-      <p>High-quality art prints for your space, delivered with care and framed with love.</p>
-    </section>
+
+  <section class="hero" id="hero">
+  <h1>Welcome to PrintMyArt</h1>
+  <p>High-quality art prints for your space, delivered with care and framed with love.</p>
+
+
+
 
     <section class="features">
       <h2 class="section-title">Why Choose PrintMyArt?</h2>

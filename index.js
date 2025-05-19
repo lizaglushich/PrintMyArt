@@ -7,13 +7,11 @@ require('dotenv').config();
 
 const { Configuration, OpenAIApi } = require("openai");
 
+let loggedIn = false;
+
 const app = express(); // define app first
 app.use(express.json()); // now it's valid to use
 
-
-app.get('/home', (req, res) => {
-  res.render('home');
-});
 
 
 // Configure app to use bodyParser middleware for handling form data
@@ -25,10 +23,10 @@ app.use('/css', express.static(__dirname + '/public/css'));
 const auth = require('./auth');
 
 // Create two users for testing authentication
+//const usersArr = ["John","Alice","user@123.com"]
 auth.createUser("John", "Secret123");
 auth.createUser("Alice", "pass456");
-auth.createUser("Dudu", "password");
-auth.createUser("Bubu", "password");
+auth.createUser("user@123.com", "pass");
 
 // Test the authentication function
 console.log(auth.authenticateUser("John", "Secret123")); // true
@@ -39,7 +37,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  database: 'proddata'
+  database: 'g00472877'
 });
 
 connection.connect((err) => {
@@ -66,10 +64,20 @@ app.use(express.static("home"));
 app.use('/img', express.static(path.join(__dirname, 'img')));
 
 // Routes
+app.get("/", (req, res) => {
+  res.render("login.ejs");
+});
+
+
+app.get("/logout", (req, res) => {
+  res.render("home.ejs", { username: null });
+});
+
 
 app.get("/login", (req, res) => {
-  res.render("login", { message: null });
+  res.render("login.ejs", { message: null });
 });
+
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -78,11 +86,18 @@ app.post('/login', (req, res) => {
 
 
   if (authenticated) {
+    loggedIn = true;
     res.render("home", { username });
   } else {
+    console.error("failed", { message: "❌ Authentication failed. Try again." })
     res.render("failed", { message: "❌ Authentication failed. Try again." });
   }
 });
+
+app.get('/home', (req, res) => {
+    res.render("home", { username });
+});
+
 
 app.get("/all", (req, res) => {
   connection.query("SELECT * FROM productdata", (err, rows) => {
@@ -97,7 +112,11 @@ app.get("/all", (req, res) => {
 // AI connection block starts here
 
 app.get("/generate", (req, res) => {
-  res.render("generate");
+  if(loggedIn == true){
+    res.render("generate"); 
+  } else {
+      res.render("login"); 
+  }
 });
 const axios = require('axios');
 
@@ -154,10 +173,28 @@ app.get("/shop", (req, res) => {
 });
 
 
+//contact page
+app.get('/contact', (req, res) => {
+  res.render("contact");
+});
+
+app.post('/send-message', (req, res) => {
+  const { name, email, message } = req.body;
+  console.log("Contact form submitted:", { name, email, message });
+  res.send("✅ Message received! We'll be in touch soon.");
+});
+
 
 // checkout
 app.get('/checkout', (req, res) => {
-  res.render("checkout");
+  if (loggedIn == true){
+    res.render("checkout");
+
+  }
+  else {
+    res.render("login");
+
+  }
 });
 
 
